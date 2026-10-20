@@ -99,13 +99,9 @@ body{font-family:var(--font-sans);background:var(--cream);color:var(--dark);over
    se leyera "de quinta". No lo vuelvas a agregar. */
 
 /* ══ WAVE DIVIDERS ══
-   Se pidió romper la sensación de "cajas rectas apiladas" entre
-   secciones — cada límite recto de un color a otro ahora es una curva
-   ondulada, no una línea. Un solo SVG (misma curva) se repite en cada
-   frontera; lo único que cambia es la clase `.wave-to-*`, que define el
-   `fill` con el color de la SIGUIENTE sección (así la curva se ve como
-   si la sección de arriba "goteara" en ondas sobre la de abajo). Vive
-   como último hijo de cada sección, pegado al borde inferior. */
+   Los bordes de fondo sencillo conservan el SVG. Las entradas a Nosotros,
+   Testimonios y Contacto recortan la sección real (regla al final del CSS)
+   para que la foto, el degradado y los efectos continúen en la onda. */
 .wave-divider{
   position:absolute;left:0;right:0;bottom:-1px;width:100%;height:64px;
   z-index:4;pointer-events:none;display:block;
@@ -243,12 +239,12 @@ nav.scrolled .nav-links a:hover{color:var(--dark)}
 #hero{
   height:100svh;
   background:var(--dark);
-  display:flex;flex-direction:column;position:relative;overflow:hidden;
+  display:flex;flex-direction:column;position:relative;overflow:visible;
 }
 /* Foto animada — capa propia en transform (compositor, no repinta en cada
    frame), para un zoom lento sin jank. */
 .hero-photo{
-  position:absolute;inset:-6%;z-index:6;pointer-events:none;
+  position:absolute;inset:-6% -6% 0;z-index:0;pointer-events:none;
   background-image:url('fotos/hero.webp');
   background-size:cover;background-position:center 30%;background-repeat:no-repeat;
   animation:heroKenBurns 28s ease-in-out infinite alternate;
@@ -265,7 +261,7 @@ nav.scrolled .nav-links a:hover{color:var(--dark)}
    la foto se ve, con color. Solo la franja inferior sube de opacidad, y
    nada más lo justo para que el texto blanco siga legible. */
 .hero-scrim{
-  position:absolute;inset:0;z-index:6;pointer-events:none;
+  position:absolute;inset:0;z-index:0;pointer-events:none;
   background:radial-gradient(58% 44% at 50% 40%,rgba(15,8,28,.46) 0%,rgba(15,8,28,.22) 55%,rgba(15,8,28,0) 100%),
     radial-gradient(95% 65% at 50% 38%,rgba(31,111,192,.06) 0%,rgba(31,111,192,.16) 60%,rgba(184,18,94,.34) 100%),
     linear-gradient(200deg,rgba(125,194,66,.30) 0%,rgba(125,194,66,0) 42%),
@@ -369,18 +365,21 @@ nav.scrolled .nav-links a:hover{color:var(--dark)}
    los huecos de la onda — el listón mismo (su stroke) es la única forma
    visible, tal como en la referencia. */
 .belt-wrap{
-  position:relative;z-index:6;overflow:hidden;
+  position:absolute;left:0;right:0;bottom:0;z-index:8;overflow:visible;
   height:clamp(56px,8vw,84px);
-  background:var(--dark);
+  transform:translateY(50%);background:transparent;
 }
-.belt-svg{display:block;width:100%;height:100%}
+.belt-svg{display:block;width:100%;height:100%;overflow:visible}
+#hero .hero-media{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+#espacios{z-index:1}
 #hero .wave-divider{z-index:7}
+#hero > .wave-divider{display:none}
 
 /* ══ NOSOTROS ══ */
 #nosotros{
   background:
     linear-gradient(120deg,rgba(184,18,94,.93) 0%,rgba(117,80,192,.86) 48%,rgba(31,111,192,.72) 100%),
-    url('placeholder.svg');
+    url('fotos/espacio-juegos.webp');
   background-size:cover;background-position:center;background-attachment:fixed;
   padding:var(--pad);
   position:relative;overflow:hidden;
@@ -466,7 +465,7 @@ nav.scrolled .nav-links a:hover{color:var(--dark)}
    viven dentro de un panel "liquid glass" CLARO (.espacios-head, .tabs,
    .espacio-content) para que las pelotas nunca compitan con el texto —
    antes flotaban directo detrás y las blancas en particular lo tapaban. */
-#espacios{background:var(--cream);padding:var(--pad);position:relative;overflow:hidden}
+#espacios{background:var(--cream);padding:var(--pad);position:relative;overflow:hidden;z-index:1;margin-top:-34px}
 /* Puntos detrás de TODO: rejilla estática (sin JS) — barata en rendimiento,
    se ve por los huecos entre pelotas y en los bordes de la sección. Color
    oscuro a baja opacidad — antes eran blancos (pensados para fondo
@@ -991,7 +990,7 @@ nav.scrolled .nav-links a:hover{color:var(--dark)}
 
 .servicios-grid{
   display:grid;grid-template-columns:repeat(4,1fr);
-  grid-auto-rows:230px;grid-auto-flow:dense;gap:18px;
+  grid-auto-rows:230px;grid-auto-flow:row;gap:18px;
 }
 .servicio-card{
   position:relative;border-radius:18px;overflow:hidden;isolation:isolate;
@@ -1561,6 +1560,25 @@ footer{background:var(--dark);position:relative;overflow:hidden;padding:0 0 24px
 .faq-chat-a-inner{display:flex!important;justify-content:flex-end!important;width:100%!important}
 .faq-chat-a{margin-left:0!important}
 .faq-empty-note{max-width:480px;margin:0 auto;text-align:center;color:var(--dark);font-size:15px;line-height:1.7;font-weight:500;opacity:.85}
+/* La onda recorta la sección real: imagen, degradado y efectos siguen juntos. */
+#nosotros,#testimonios,#contacto{
+  --wave-height:64px;
+  margin-top:calc(-1 * var(--wave-height));
+  padding-top:calc(clamp(80px,10vw,130px) + var(--wave-height));
+  z-index:2;
+  clip-path:polygon(0.0000% calc(var(--wave-height) * 0.40000),2.0833% calc(var(--wave-height) * 0.45540),4.1667% calc(var(--wave-height) * 0.49734),6.2500% calc(var(--wave-height) * 0.52695),8.3333% calc(var(--wave-height) * 0.54537),10.4167% calc(var(--wave-height) * 0.55372),12.5000% calc(var(--wave-height) * 0.55312),14.5833% calc(var(--wave-height) * 0.54472),16.6667% calc(var(--wave-height) * 0.52963),18.7500% calc(var(--wave-height) * 0.50898),20.8333% calc(var(--wave-height) * 0.48391),22.9167% calc(var(--wave-height) * 0.45554),25.0000% calc(var(--wave-height) * 0.42500),27.0833% calc(var(--wave-height) * 0.39342),29.1667% calc(var(--wave-height) * 0.36192),31.2500% calc(var(--wave-height) * 0.33164),33.3333% calc(var(--wave-height) * 0.30370),35.4167% calc(var(--wave-height) * 0.27924),37.5000% calc(var(--wave-height) * 0.25938),39.5833% calc(var(--wave-height) * 0.24524),41.6667% calc(var(--wave-height) * 0.23796),43.7500% calc(var(--wave-height) * 0.23867),45.8333% calc(var(--wave-height) * 0.24850),47.9167% calc(var(--wave-height) * 0.26856),50.0000% calc(var(--wave-height) * 0.30000),52.0833% calc(var(--wave-height) * 0.33346),54.1667% calc(var(--wave-height) * 0.35932),56.2500% calc(var(--wave-height) * 0.37832),58.3333% calc(var(--wave-height) * 0.39120),60.4167% calc(var(--wave-height) * 0.39871),62.5000% calc(var(--wave-height) * 0.40156),64.5833% calc(var(--wave-height) * 0.40051),66.6667% calc(var(--wave-height) * 0.39630),68.7500% calc(var(--wave-height) * 0.38965),70.8333% calc(var(--wave-height) * 0.38131),72.9167% calc(var(--wave-height) * 0.37201),75.0000% calc(var(--wave-height) * 0.36250),77.0833% calc(var(--wave-height) * 0.35351),79.1667% calc(var(--wave-height) * 0.34578),81.2500% calc(var(--wave-height) * 0.34004),83.3333% calc(var(--wave-height) * 0.33704),85.4167% calc(var(--wave-height) * 0.33751),87.5000% calc(var(--wave-height) * 0.34219),89.5833% calc(var(--wave-height) * 0.35182),91.6667% calc(var(--wave-height) * 0.36713),93.7500% calc(var(--wave-height) * 0.38887),95.8333% calc(var(--wave-height) * 0.41777),97.9167% calc(var(--wave-height) * 0.45456),100.0000% calc(var(--wave-height) * 0.50000),100% 100%,0 100%);
+}
+@media(max-width:768px){#nosotros,#testimonios,#contacto{--wave-height:32px}}
+
+.korvel-site-link{
+  display:table;position:relative;z-index:6;margin:22px auto 28px;
+  padding:9px 22px;border-radius:999px;background:#fffdf6;color:var(--dark);
+  border:2px solid var(--dark);box-shadow:0 5px 0 rgba(23,54,77,.22);
+  font-family:'Quicksand',sans-serif;font-size:clamp(20px,2vw,26px);
+  font-weight:800;letter-spacing:.01em;text-decoration:none;line-height:1.2;
+}
+.korvel-site-link:hover{background:var(--dark);color:#fffdf6}
+.korvel-site-link:focus-visible{outline:3px solid var(--accent);outline-offset:4px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
 </head>
@@ -1599,8 +1617,10 @@ footer{background:var(--dark);position:relative;overflow:hidden;padding:0 0 24px
 <!-- HERO -->
 <section id="hero">
 
-  <div class="hero-photo" aria-hidden="true"></div>
-  <div class="hero-scrim" aria-hidden="true"></div>
+  <div class="hero-media" aria-hidden="true">
+    <div class="hero-photo" aria-hidden="true"></div>
+    <div class="hero-scrim" aria-hidden="true"></div>
+  </div>
 
   <!-- Círculos flotantes esquina superior derecha -->
   <div class="hero-dots hero-dots-tr">
@@ -1772,7 +1792,6 @@ footer{background:var(--dark);position:relative;overflow:hidden;padding:0 0 24px
       </div>
     </div>
   </div>
-  <svg class="wave-divider" viewBox="0 0 1440 100" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="waveGradNosotros" x1="0%" y1="15%" x2="100%" y2="85%"><stop offset="0%" stop-color="#B8125E"/><stop offset="48%" stop-color="#7550C0"/><stop offset="100%" stop-color="#1F6FC0"/></linearGradient></defs><path fill="url(#waveGradNosotros)" d="M0,40 C240,90 480,0 720,30 C960,60 1200,10 1440,50 L1440,100 L0,100 Z"/></svg>
 </section>
 
 <!-- NOSOTROS -->
@@ -1952,7 +1971,18 @@ footer{background:var(--dark);position:relative;overflow:hidden;padding:0 0 24px
            confirmadas por el cliente. -->
       </div>
     <div class="faq-list">
-      <p class="faq-empty-note">Aquí vamos a poner las preguntas que más nos hagan sobre este salón. Mientras las juntamos, cualquier duda nos escriben directo y se las resolvemos al momento.</p>
+       <div class="faq-chat-item">
+         <button class="faq-chat-q" type="button" onclick="toggleFaqChat(this)">¿Qué tipo de fiestas pueden organizar aquí?<svg class="faq-chat-toggle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path class="faq-chat-plus" d="M12 5v14M5 12h14"/><path class="faq-chat-minus" d="M5 12h14"/></svg></button>
+         <div class="faq-chat-a-wrap"><div class="faq-chat-a-inner"><p class="faq-chat-a">Pueden celebrar cumpleaños infantiles, fiestas temáticas, graduaciones de kínder, baby showers, bautizos y otras ocasiones especiales. Cuéntanos qué tienes en mente y lo revisamos juntos.</p></div></div>
+       </div>
+       <div class="faq-chat-item">
+         <button class="faq-chat-q" type="button" onclick="toggleFaqChat(this)">¿Qué incluye una fiesta en Alebrijes Eventos?<svg class="faq-chat-toggle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path class="faq-chat-plus" d="M12 5v14M5 12h14"/><path class="faq-chat-minus" d="M5 12h14"/></svg></button>
+         <div class="faq-chat-a-wrap"><div class="faq-chat-a-inner"><p class="faq-chat-a">Cada celebración puede armarse a la medida. Aquí podemos definir contigo los espacios, la decoración, el entretenimiento y los detalles que quieras incluir, según el tipo de fiesta.</p></div></div>
+       </div>
+       <div class="faq-chat-item">
+         <button class="faq-chat-q" type="button" onclick="toggleFaqChat(this)">¿Cómo puedo pedir información o una cotización?<svg class="faq-chat-toggle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path class="faq-chat-plus" d="M12 5v14M5 12h14"/><path class="faq-chat-minus" d="M5 12h14"/></svg></button>
+         <div class="faq-chat-a-wrap"><div class="faq-chat-a-inner"><p class="faq-chat-a">Mándanos un mensaje con la fecha, el tipo de celebración y el número aproximado de invitados. Te orientamos sobre las opciones disponibles y los siguientes pasos.</p></div></div>
+       </div>
     </div>
   </div>
   <svg class="wave-divider wave-to-dark" viewBox="0 0 1440 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0,40 C240,90 480,0 720,30 C960,60 1200,10 1440,50 L1440,100 L0,100 Z"/></svg>
@@ -2020,9 +2050,27 @@ footer{background:var(--dark);position:relative;overflow:hidden;padding:0 0 24px
       <p class="servicios-sub">Shows, juegos, brincolines y piñatas: el salón se encarga de la diversión para que tú solo llegues a celebrar.</p>
     </div>
     <div class="servicios-grid">
-      <!-- 01 — oscura -->
-      <div class="servicio-card servicio-dark reveal">
+      <!-- 01 — foto, destacada -->
+      <div class="servicio-card servicio-photo servicio-featured reveal">
+        <div class="servicio-bg" style="background-image:url('fotos/espacio-juegos.webp')"></div>
         <span class="servicio-num">01</span>
+        <div class="servicio-card-content">
+          <div class="servicio-name">Inflables y Brincolines</div>
+          <p class="servicio-desc">Tobogán tubular de colores y brincolines para que los niños corran sin parar.</p>
+        </div>
+      </div>
+      <!-- 02 — foto, destacada -->
+      <div class="servicio-card servicio-photo servicio-featured reveal reveal-delay-1">
+        <div class="servicio-bg" style="background-image:url('fotos/servicio-pinatas.webp')"></div>
+        <span class="servicio-num">02</span>
+        <div class="servicio-card-content">
+          <div class="servicio-name">Piñatas</div>
+          <p class="servicio-desc">Piñatas para la hora de romperlas, con sorpresas para cada niño.</p>
+        </div>
+      </div>
+      <!-- 03 — oscura -->
+      <div class="servicio-card servicio-dark reveal reveal-delay-2">
+        <span class="servicio-num">03</span>
         <div class="servicio-icon">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
         </div>
@@ -2031,36 +2079,9 @@ footer{background:var(--dark);position:relative;overflow:hidden;padding:0 0 24px
           <p class="servicio-desc">Juegos, concursos y shows con personajes para que ningún niño se aburra.</p>
         </div>
       </div>
-      <!-- 02 — foto, destacada -->
-      <div class="servicio-card servicio-photo servicio-featured reveal reveal-delay-1">
-        <div class="servicio-bg" style="background-image:url('fotos/espacio-juegos.webp')"></div>
-        <span class="servicio-num">02</span>
-        <div class="servicio-card-content">
-          <div class="servicio-name">Inflables y Brincolines</div>
-          <p class="servicio-desc">Tobogán tubular de colores y brincolines para que los niños corran sin parar.</p>
-        </div>
-      </div>
-      <!-- 03 — foto, destacada -->
-      <div class="servicio-card servicio-photo servicio-featured reveal reveal-delay-2">
-        <div class="servicio-bg" style="background-image:url('fotos/servicio-pinatas.webp')"></div>
-        <span class="servicio-num">03</span>
-        <div class="servicio-card-content">
-          <div class="servicio-name">Piñatas</div>
-          <p class="servicio-desc">Piñatas para la hora de romperlas, con sorpresas para cada niño.</p>
-        </div>
-      </div>
-      <!-- 04 — foto, destacada -->
-      <div class="servicio-card servicio-photo servicio-featured reveal reveal-delay-3">
-        <div class="servicio-bg" style="background-image:url('fotos/galeria-2.webp')"></div>
+      <!-- 04 — oscura -->
+      <div class="servicio-card servicio-dark reveal reveal-delay-3">
         <span class="servicio-num">04</span>
-        <div class="servicio-card-content">
-          <div class="servicio-name">Decoración Temática</div>
-          <p class="servicio-desc">Tu tema en el muro de colores del salón, con las mesas puestas.</p>
-        </div>
-      </div>
-      <!-- 05 — oscura -->
-      <div class="servicio-card servicio-dark reveal">
-        <span class="servicio-num">05</span>
         <div class="servicio-icon">
           <svg viewBox="0 0 24 24"><path d="M4 21h16"/><path d="M4 21v-6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v6"/><path d="M12 13V9"/><path d="M12 6.5a1.5 1.5 0 1 0-1.5-1.5c0 .9 1.5 1.5 1.5 1.5z"/></svg>
         </div>
@@ -2069,24 +2090,33 @@ footer{background:var(--dark);position:relative;overflow:hidden;padding:0 0 24px
           <p class="servicio-desc">Mesas redondas con mantel de colores y sillas a la altura de los peques.</p>
         </div>
       </div>
-      <!-- 06 — oscura -->
-      <div class="servicio-card servicio-dark reveal reveal-delay-1">
+      <!-- 05 — foto, destacada -->
+      <div class="servicio-card servicio-photo servicio-featured reveal">
+        <div class="servicio-bg" style="background-image:url('fotos/galeria-2.webp')"></div>
+        <span class="servicio-num">05</span>
+        <div class="servicio-card-content">
+          <div class="servicio-name">Decoración Temática</div>
+          <p class="servicio-desc">Tu tema en el muro de colores del salón, con las mesas puestas.</p>
+        </div>
+      </div>
+      <!-- 06 — foto, destacada -->
+      <div class="servicio-card servicio-photo servicio-featured reveal reveal-delay-1">
+        <div class="servicio-bg" style="background-image:url('fotos/servicio-show.webp')"></div>
         <span class="servicio-num">06</span>
+        <div class="servicio-card-content">
+          <div class="servicio-name">Shows y Espectáculos</div>
+          <p class="servicio-desc">Mascotas y personajes en el escenario, con show en vivo.</p>
+        </div>
+      </div>
+      <!-- 07 — oscura -->
+      <div class="servicio-card servicio-dark reveal reveal-delay-2">
+        <span class="servicio-num">07</span>
         <div class="servicio-icon">
           <svg viewBox="0 0 24 24"><path d="M3 10h18"/><path d="M5 10V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4"/><path d="M6 10v10"/><path d="M18 10v10"/></svg>
         </div>
         <div class="servicio-card-content">
           <div class="servicio-name">Área para papás</div>
           <p class="servicio-desc">Mesas para papás con vista a los juegos, para verlos desde su lugar.</p>
-        </div>
-      </div>
-      <!-- 07 — foto, destacada -->
-      <div class="servicio-card servicio-photo servicio-featured reveal reveal-delay-2">
-        <div class="servicio-bg" style="background-image:url('fotos/servicio-show.webp')"></div>
-        <span class="servicio-num">07</span>
-        <div class="servicio-card-content">
-          <div class="servicio-name">Shows y Espectáculos</div>
-          <p class="servicio-desc">Mascotas y personajes en el escenario, con show en vivo.</p>
         </div>
       </div>
       <!-- 08 — oscura -->
@@ -2102,7 +2132,6 @@ footer{background:var(--dark);position:relative;overflow:hidden;padding:0 0 24px
       </div>
     </div>
   </div>
-  <svg class="wave-divider" viewBox="0 0 1440 100" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="waveGradTestimonios" x1="35%" y1="0%" x2="65%" y2="100%"><stop offset="0%" stop-color="#B8125E"/><stop offset="60%" stop-color="#D12B78"/><stop offset="100%" stop-color="#B8125E"/></linearGradient></defs><path fill="url(#waveGradTestimonios)" d="M0,40 C240,90 480,0 720,30 C960,60 1200,10 1440,50 L1440,100 L0,100 Z"/></svg>
 </section>
 
 <!-- TESTIMONIOS -->
@@ -2333,7 +2362,6 @@ footer{background:var(--dark);position:relative;overflow:hidden;padding:0 0 24px
       </div>
     </div>
   </div>
-  <svg class="wave-divider" viewBox="0 0 1440 100" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="waveGradContacto" x1="0%" y1="50%" x2="100%" y2="50%"><stop offset="0%" stop-color="#B8125E"/><stop offset="42%" stop-color="#783987"/><stop offset="60%" stop-color="#1F6FC0"/><stop offset="100%" stop-color="#1F6FC0"/></linearGradient></defs><path fill="url(#waveGradContacto)" d="M0,40 C240,90 480,0 720,30 C960,60 1200,10 1440,50 L1440,100 L0,100 Z"/></svg>
 </section>
 
 <!-- CONTACTO / COTIZAR -->
@@ -2474,11 +2502,12 @@ footer{background:var(--dark);position:relative;overflow:hidden;padding:0 0 24px
         <img class="jesus-note-foto" src="https://korvel.com.mx/img/founder-jesus.webp" alt="Jesús, de Korvel" width="64" height="64" loading="lazy">
         <span class="jesus-note-nombre">Jesús, de Korvel</span>
       </div>
-      <p>Hola, soy Jesus, de Korvel. Esta demo la arme con las fotos que tienen en google maps, asi que seguro me faltaron cosas, como sus paquetes o algunas respuestas de aqui abajo. Lo que tengan a la mano me lo mandan y se lo acomodo para dejarla a su medida.</p>
+      <p>Hola, soy Jesús, de Korvel. Armé esta demo porque me encantaron el tobogán de colores y el mural de Alebrijes; su salón merece una página web igual de bonita. La preparé con las fotos públicas que tienen en Google Maps y Facebook, así que esto es apenas una base. Si la trabajamos juntos, podemos mejorar el diseño, agregar la información que falta y dejarla completamente a la medida de su salón. Podemos hacerlo sin ningún anticipo: la vamos ajustando juntos y, si les gusta el resultado, me pagan. Si no les convence, no hay problema.</p>
       <span class="jesus-note-tel">Tel: 81 2933 5144</span>
       <img class="jesus-note-firma" src="https://korvel.com.mx/img/firma-jesus.webp" alt="Firma de Jesús" width="150" height="56" loading="lazy">
     </div>
   </div>
+  <a class="korvel-site-link" href="https://korvel.com.mx/" target="_blank" rel="noopener noreferrer" aria-label="Visitar Korvel: korvel.com.mx">korvel.com.mx</a>
   <svg class="wave-divider wave-to-dark" viewBox="0 0 1440 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0,40 C240,90 480,0 720,30 C960,60 1200,10 1440,50 L1440,100 L0,100 Z"/></svg>
 </section>
 
@@ -3554,7 +3583,7 @@ var INV_DIR   = 'Calle Miguel Hidalgo 309, Cadereyta';
     if(!W || !H) return;
     svg.setAttribute('viewBox', '0 0 '+W+' '+H);
 
-    var cy = H/2;
+    var cy = H/2 - H*0.35;
     var ribbonWidth = Math.max(30, H*0.5);
     /* amp se calcula para que ni la cresta ni el borde+8 del outline se
        recorten contra los bordes del viewBox (overflow:hidden). */
